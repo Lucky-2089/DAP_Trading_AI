@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+streamlit>=1.32.0
+pytest
+playwright
+plotly
+yfinance
+joblib

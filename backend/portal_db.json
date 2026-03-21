@@ -1,0 +1,134 @@
+{
+    "user1": {
+        "password": "password123",
+        "name": "Customer 001",
+        "risk_profile": "low",
+        "base_currency": "USD",
+        "wallets": {
+            "GBP": 11500.0,
+            "USD": 10000.0
+        },
+        "transactions": [
+            {
+                "timestamp": "2026-03-21 10:30:20",
+                "description": "Manual Deposit (External Bank)",
+                "amount": 1000,
+                "currency": "GBP",
+                "status": "Settled"
+            },
+            {
+                "timestamp": "2026-03-21 10:11:06",
+                "description": "Institutional Purchase: iShares \u00a3 Ultrashort Bond",
+                "amount": -500,
+                "currency": "GBP",
+                "status": "Settled"
+            },
+            {
+                "timestamp": "2026-03-21 10:10:10",
+                "description": "Manual Deposit (External Bank)",
+                "amount": 1000,
+                "currency": "GBP",
+                "status": "Settled"
+            }
+        ]
+    },
+    "user2": {
+        "password": "password123",
+        "name": "Customer 002",
+        "risk_profile": "low",
+        "base_currency": "GBP",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user3": {
+        "password": "password123",
+        "name": "Customer 003",
+        "risk_profile": "low",
+        "base_currency": "USD",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user4": {
+        "password": "password123",
+        "name": "Customer 004",
+        "risk_profile": "medium",
+        "base_currency": "GBP",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user5": {
+        "password": "password123",
+        "name": "Customer 005",
+        "risk_profile": "medium",
+        "base_currency": "USD",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user6": {
+        "password": "password123",
+        "name": "Customer 006",
+        "risk_profile": "medium",
+        "base_currency": "GBP",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user7": {
+        "password": "password123",
+        "name": "Customer 007",
+        "risk_profile": "medium",
+        "base_currency": "USD",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user8": {
+        "password": "password123",
+        "name": "Customer 008",
+        "risk_profile": "high",
+        "base_currency": "GBP",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user9": {
+        "password": "password123",
+        "name": "Customer 009",
+        "risk_profile": "high",
+        "base_currency": "USD",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    },
+    "user10": {
+        "password": "password123",
+        "name": "Customer 0010",
+        "risk_profile": "high",
+        "base_currency": "GBP",
+        "wallets": {
+            "GBP": 10000.0,
+            "USD": 10000.0
+        },
+        "transactions": []
+    }
+}
