@@ -28,8 +28,8 @@ def apply_custom_css():
         /* 2. MOBILE OVERRIDE (Screens smaller than 768px) - Deep Forest */
         @media only screen and (max-width: 768px) {
             .stApp {
-                background-color: #ffffff !important;
-background-image: linear-gradient(180deg, #e3f2fd 0%, #ffffff 400px) !important;
+                background-color: #f4f4f4 !important;
+background-image: linear-gradient(180deg, #004d40 0%, #f4f4f4 400px) !important;
                 background-attachment: scroll !important;
             }
             
