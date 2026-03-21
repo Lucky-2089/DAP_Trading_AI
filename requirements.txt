@@ -7,6 +7,5 @@ playwright
 plotly
 yfinance
 joblib
-streamlit
 requests
 streamlit_lottie

@@ -18,36 +18,50 @@ st.set_page_config(page_title="Institutional Digital Asset Portal", layout="wide
 def apply_custom_css():
     st.markdown("""
     <style>
-        /* 1. Eliminate Streamlit Header & Top Padding Gap */
-        header[data-testid="stHeader"] {
-            background: transparent !important;
-        }
-
-        /* Targets the main container to remove top white space */
-        .stMainBlockContainer {
-            padding-top: 0rem !important;
-            padding-bottom: 1rem !important;
-            animation: fadeIn 0.8s ease-in;
-        }
-
-        /* 2. Global Application Background (Sandstone Professional) */
+        /* 1. Global Application Background - DEFAULT (Laptop/Desktop) */
         .stApp {
             background-color: #f9f9f7 !important;
             background-image: linear-gradient(180deg, #e3e3de 0%, #f9f9f7 400px) !important;
             background-attachment: fixed;
         }
 
-        /* 3. Sidebar Styling */
-        [data-testid="stSidebar"] {
-            background-color: rgba(255, 255, 255, 0.4) !important;
-            backdrop-filter: blur(15px);
-            border-right: 1px solid rgba(0, 106, 77, 0.1);
+        /* 2. MOBILE OVERRIDE (Screens smaller than 768px) - Deep Forest */
+        @media only screen and (max-width: 768px) {
+            .stApp {
+                background-color: #ffffff !important;
+background-image: linear-gradient(180deg, #e3f2fd 0%, #ffffff 400px) !important;
+                background-attachment: scroll !important;
+            }
+            
+            /* Change header text to white for mobile dark background */
+            .main-header {
+                color: #ffffff !important;
+                border-bottom: 2px solid #ffffff !important;
+                font-size: 20px !important;
+                padding-top: 1rem !important;
+            }
+
+            /* Adjust Sidebar text color for mobile visibility if needed */
+            [data-testid="stSidebar"] .st-emotion-cache-16idsys p {
+                color: #ffffff !important;
+            }
         }
 
-        /* 4. Main Header Styling (Institutional Lloyds Style) */
+        /* 3. Eliminate Streamlit Header & Top Padding Gap */
+        header[data-testid="stHeader"] {
+            background: transparent !important;
+        }
+
+        .stMainBlockContainer {
+            padding-top: 0rem !important;
+            padding-bottom: 1rem !important;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        /* 4. Desktop Main Header Styling */
         .main-header {
             font-family: 'Times New Roman', serif;
-            color: #006a4d; /* Using LBG Green for readability on Sandstone */
+            color: #006a4d; 
             font-weight: 700;
             padding-top: 2rem;
             padding-bottom: 1rem;
@@ -55,12 +69,19 @@ def apply_custom_css():
             margin-bottom: 2rem;
         }
 
+        /* 5. Sidebar Styling */
+        [data-testid="stSidebar"] {
+            background-color: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(0, 106, 77, 0.1);
+        }
+
         @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(5px); }
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* 5. Customizing Sidebar Buttons */
+        /* 6. Customizing Sidebar Buttons (Desktop Default) */
         [data-testid="stSidebar"] .st-emotion-cache-16idsys p {
             color: #006a4d !important;
             font-weight: 600;
