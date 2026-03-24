@@ -1,57 +1,35 @@
-import yfinance as yf
-from typing import List, Dict, Any
+import numpy as np
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
 
+class ArchaxPublicClient:
+    def __init__(self):
+        self.base_url = "https://ace.archax.com/api/3.0/rest-gateway"
 
-def get_live_fund_data(ticker_symbol: str, default_name: str, min_inv: int, risk: str) -> Dict[str, Any]:
-    """Fetches live data from Yahoo Finance with an Institutional Fallback for QE stability."""
-    try:
-        fund = yf.Ticker(ticker_symbol)
-        # 1. Fetch info with a timeout/error check
-        info = fund.info
+    def get_public_funds(self):
+        """Fetches public asset metadata from Archax with a robust fallback."""
+        try:
+            response = requests.get(f"{self.base_url}/assets", timeout=5)
+            if response.status_code == 200:
+                all_assets = response.json().get('data', [])
+                funds = [a for a in all_assets if a.get('assetClass') == 'FUND']
+                if funds: return funds
+        except Exception:
+            pass
+        return self._get_fallback_funds()
 
-        # If the ticker is delisted or invalid, yfinance might return an empty dict or error
-        if not info or 'regularMarketPreviousClose' not in info and 'previousClose' not in info:
-            raise ValueError("Ticker Data Unavailable")
+    def get_gilt_performance_data(self):
+        """Generates 30 days of synthetic Gilt yield data for the AI POC."""
+        dates = [(datetime.now() - timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30)]
+        dates.reverse()
+        trend = np.linspace(0, 0.5, 30)
+        yields = (np.random.uniform(4.5, 4.8, size=30) + trend).tolist()
+        return pd.DataFrame({"Date": dates, "Yield (%)": yields, "Asset": "UK Gilt 2024"})
 
-        nav = info.get('regularMarketPreviousClose') or info.get('previousClose') or 100.0
-        raw_yield = info.get('yield') or info.get('trailingAnnualDividendYield')
-        fund_yield = round(raw_yield * 100, 2) if raw_yield else 5.25  # Benchmark 5.25%
-
-        return {
-            "fund_name": default_name,
-            "currency": info.get('currency', 'GBP'),
-            "nav": round(nav, 2),
-            "yield": fund_yield,
-            "risk_level": risk,
-            "liquidity": 1,
-            "minimum_investment": min_inv
-        }
-
-    except Exception as e:
-        # QE FAIL-SAFE: Use Benchmark data so the AI Engine still works
-        return {
-            "fund_name": f"{default_name} (Benchmark)",
-            "currency": "GBP",
-            "nav": 100.00,
-            "yield": 5.15,
-            "risk_level": risk,
-            "liquidity": 1,
-            "minimum_investment": min_inv
-        }
-
-
-def fetch_archax_mmfs() -> List[Dict[str, Any]]:
-    """Stable UK Tickers for the Archax simulation."""
-    return [
-        get_live_fund_data("CSH2.L", "Amundi Sterling Cash", 1000, "low"),
-        get_live_fund_data("ERNS.L", "iShares £ Ultrashort Bond", 500, "low"),
-        get_live_fund_data("FLOT.L", "iShares £ Floating Rate Bond", 1000, "low")
-    ]
-
-
-def fetch_marketdata_mmfs() -> List[Dict[str, Any]]:
-    """Stable Medium/High risk tickers for the AI filter test."""
-    return [
-        get_live_fund_data("IS15.L", "iShares £ Corp Bond 0-5yr", 100, "medium"),
-        get_live_fund_data("SLXX.L", "iShares £ Core Corp Bond", 1000, "high")
-    ]
+    def _get_fallback_funds(self):
+        return [
+            {"name": "abrdn Sterling MMF", "isin": "GB00B4W3Q943", "assetTicker": "ABRDN.STG", "yield": 5.25},
+            {"name": "BlackRock ICS US Treasury", "isin": "IE00B1S75308", "assetTicker": "BLK.UST", "yield": 5.10},
+            {"name": "Fidelity Inst. Liquidity", "isin": "IE0003323537", "assetTicker": "FID.LQD", "yield": 5.15}
+        ]

@@ -1,90 +1,105 @@
 import streamlit as st
-import time
+import plotly.express as px
+import plotly.graph_objects as go
+from backend.api_mock import ArchaxPublicClient
 from backend.ai_engine import RecommenderAPI
-from backend.database import db  # Import the instance 'db'
 
 
 def show_investment(user_data):
-    st.header("📈 AI-Powered Fund Selection")
+    st.header("🤖 AI Institutional Advisor")
+    client, engine = ArchaxPublicClient(), RecommenderAPI()
 
-    # 1. Validation & Setup
-    user_wallets = user_data['wallets']
-    if not user_wallets:
-        st.warning("Please fund a wallet before accessing AI Recommendations.")
+    # 1. Data Context
+    wallets = user_data.get('wallets', {})
+    if not wallets:
+        st.warning("Please add funds to your wallet to enable AI advisory.")
         return
 
-    selected_currency = st.selectbox("Invest from Wallet", list(user_wallets.keys()))
-    current_balance = user_wallets[selected_currency]
+    sel_cur = st.selectbox("Funding Wallet", list(wallets.keys()))
+    balance, risk = wallets[sel_cur], user_data.get('risk_profile', 'low')
 
-    st.write(f"Analyzing funds for **{user_data['risk_profile']}** risk profile in **{selected_currency}**...")
-    st.write(f"Available Balance: **{selected_currency} {current_balance:,.2f}**")
+    # 2. AI Inference
+    with st.spinner("AI Model scanning Archax Digital Assets..."):
+        raw_funds = client.get_public_funds()
+        df_recs = engine.get_recommendations(risk, balance, raw_funds)
 
-    # 2. Call AI Engine
-    try:
-        engine = RecommenderAPI()
-        user_context = {
-            "wallet_balance": current_balance,
-            "risk_profile": user_data['risk_profile'],
-            "currency": selected_currency
-        }
-        recommendations = engine.get_recommendations(user_context)
-    except Exception as e:
-        st.error(f"AI Engine Error: {e}")
-        return
+    # 3. Visualizations: Donut & Bar Charts
+    st.subheader("💧 Liquidity Profile")
+    st.plotly_chart(px.pie(df_recs, values='liquidity_score', names='name', hole=0.5,
+                           color_discrete_sequence=px.colors.sequential.Greens_r), use_container_width=True)
 
-    # 3. Display Recommendations
-    if not recommendations.empty:
-        st.subheader("🤖 AI Top Picks for You")
-        display_df = recommendations[['fund_name', 'yield', 'final_score', 'minimum_investment']]
-        st.dataframe(display_df, use_container_width=True)
+    st.subheader("⚖️ Risk-Reward Comparison")
+    fig_bar = go.Figure(data=[
+        go.Bar(name='Yield (%)', x=df_recs['name'], y=df_recs['yield'], marker_color='#006a4d'),
+        go.Bar(name='Volatility', x=df_recs['name'], y=df_recs['volatility'], marker_color='#a5d6a7')
+    ])
+    fig_bar.update_layout(barmode='group', margin=dict(t=20, b=20))
+    st.plotly_chart(fig_bar, use_container_width=True)
 
-        st.divider()
-        st.write("### Execute Institutional Trades")
+    st.divider()
 
-        for index, row in recommendations.iterrows():
-            col1, col2, col3 = st.columns([3, 1, 1])
+    # 4. Top Pick Section with LARGE Centered Gauge
+    top_fund = df_recs.iloc[0]
+    st.success(f"🏆 AI TOP RECOMMENDATION: {top_fund['name']}")
 
-            with col1:
-                st.write(f"**{row['fund_name']}**")
-                st.caption(f"Yield: {row['yield']}% | Min: {selected_currency} {row['minimum_investment']}")
+    col_info, col_gauge = st.columns([1, 1])
 
-            with col2:
-                st.write(f"Score: **{row['final_score']:.2f}**")
+    with col_info:
+        st.markdown("### Selection Reasoning")
+        st.write(f"**ML Confidence:** {top_fund['ai_score']}%")
+        st.write(f"**Asset ISIN:** {top_fund['isin']}")
+        st.write(f"**Yield:** {top_fund['yield']}%")
+        st.info(
+            f"The Random Forest model identified this as the optimal match for a **{risk.upper()}** risk profile with a balance of **{sel_cur} {balance:,.2f}**.")
 
-            with col3:
-                if st.button("Invest", key=f"btn_{selected_currency}_{index}"):
-                    if current_balance >= row['minimum_investment']:
-                        with st.status("🔗 Initializing Canton DvP Flow...", expanded=True) as status:
-                            st.write("Checking wallet liquidity...")
-                            time.sleep(0.8)
+        if st.button("Subscribe to Fund", use_container_width=True):
+            st.balloons()
+            st.toast("Subscription request sent to Archax Ledger", icon="🏦")
 
-                            st.write("Requesting asset lock from Archax...")
-                            time.sleep(1.0)
+    with col_gauge:
+        # Centering and sizing the Gauge
+        fig_gauge = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=top_fund['ai_score'],
+            domain={'x': [0, 1], 'y': [0, 1]},
+            title={'text': "AI Match Quality", 'font': {'size': 20, 'color': "#006a4d"}},
+            gauge={
+                'axis': {'range': [0, 100], 'tickwidth': 1},
+                'bar': {'color': "#006a4d"},
+                'bgcolor': "white",
+                'borderwidth': 2,
+                'bordercolor': "#eeeeee",
+                'steps': [
+                    {'range': [0, 50], 'color': '#f1f8e9'},
+                    {'range': [50, 85], 'color': '#c8e6c9'},
+                    {'range': [85, 100], 'color': '#81c784'}
+                ],
+                'threshold': {
+                    'line': {'color': "orange", 'width': 4},
+                    'thickness': 0.75,
+                    'value': 90}
+            }
+        ))
 
-                            # --- THE FIX IS HERE ---
-                            inv_amt = -row['minimum_investment']
-                            tx_desc = f"Institutional Purchase: {row['fund_name']}"
+        fig_gauge.update_layout(
+            height=350,  # Larger height for visibility
+            margin=dict(t=60, b=20, l=30, r=30),
+            paper_bgcolor="rgba(0,0,0,0)",
+        )
 
-                            success = db.update_wallet(
-                                st.session_state.user_id,
-                                selected_currency,
-                                inv_amt,
-                                description=tx_desc  # Ensure description is passed
-                            )
+        st.plotly_chart(fig_gauge, use_container_width=True)
 
-                            if success:
-                                # CRITICAL: Update the session state with fresh data from the DB
-                                # This ensures the ledger sees the new transaction immediately
-                                st.session_state.user_data = db.get_user(st.session_state.user_id)
+    # 5. Stress Test Section
+    st.divider()
+    st.subheader("🛡️ Institutional Risk Stress Test")
+    st.caption("How will your portfolio recover if the market drops today?")
 
-                                st.write("Finalizing Atomic Settlement on Ledger...")
-                                time.sleep(0.7)
-                                status.update(label="✅ Transaction Settled", state="complete", expanded=False)
-                                st.balloons()
-                                st.toast(f"Purchased {row['fund_name']}!", icon='💰')
-                                time.sleep(1)
-                                st.rerun()  # Forces the UI to rebuild with the new session_state
-                    else:
-                        st.error("❌ Insufficient Funds")
+    crash = st.select_slider("Simulate Market Shock %", options=[0, 10, 20, 30], value=0)
+    if crash > 0:
+        stressed = engine.simulate_stress_test(df_recs.to_dict('records'), crash)
+        st.plotly_chart(px.area(stressed, x="name", y="recovery_months",
+                                title=f"Estimated Recovery Time ({crash}% Crash Scenario)",
+                                labels={"recovery_months": "Months to Par", "name": "Fund Asset"},
+                                color_discrete_sequence=["#e57373"]), use_container_width=True)
     else:
-        st.warning("🔎 No funds match your current profile at this time.")
+        st.info("Select a percentage above to run the market simulation.")

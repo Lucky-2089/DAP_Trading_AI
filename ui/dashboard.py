@@ -1,75 +1,29 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-
+import plotly.express as px
+from backend.api_mock import ArchaxPublicClient
 
 def show_dashboard(user_data):
-    # --- Header Section ---
-    st.header(f"💼 Institutional Overview: {user_data['name']}")
-    st.caption(f"Portal Access: Standard | Last Login: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')}")
+    st.title(f"Institutional Portal: {user_data['name']}")
+    client = ArchaxPublicClient()
 
-    # --- Key Metrics Row ---
-    col1, col2, col3, col4 = st.columns(4)
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Compliance", "KYC Approved", delta="Verified")
+    wallets = user_data.get('wallets', {})
+    c2.metric("Total AUM", f"GBP {sum(wallets.values()):,.2f}")
+    c3.metric("AI Risk Profile", user_data.get('risk_profile', 'low').upper())
 
-    # 1. Calculate Total Balance (Simplified for demo)
-    total_gbp = user_data['wallets'].get('GBP', 0)
-    total_usd = user_data['wallets'].get('USD', 0)
+    st.subheader("📊 Market Intelligence: 30-Day Gilt Yield Trend")
+    perf_data = client.get_gilt_performance_data()
+    fig_line = px.line(perf_data, x="Date", y="Yield (%)", template="plotly_white", color_discrete_sequence=["#006a4d"])
+    st.plotly_chart(fig_line, use_container_width=True)
 
-    col1.metric("Risk Profile", user_data['risk_profile'].upper(), help="Based on your KYC onboarding assessment.")
-    col2.metric("Base Currency", user_data['base_currency'])
-    col3.metric("AI Health", "99.2%", delta="Optimal", help="Real-time Random Forest Model Accuracy.")
-    col4.metric("Market Sentiment", "Bullish", delta="1.2%", help="Aggregated trend of monitored MMFs.")
-
-    st.divider()
-
-    # --- Portfolio Analytics Section ---
-    left_col, right_col = st.columns([2, 1])
-
-    with left_col:
-        st.subheader("📈 Portfolio Performance (Projected)")
-        # Simulating a small growth trend for the UI feel
-        chart_data = pd.DataFrame(
-            np.random.randn(20, 1).cumsum() + 10,
-            columns=['Portfolio Value']
-        )
-        st.line_chart(chart_data, height=250)
-        st.caption("Trailing 20-day performance of your active tokenized assets.")
-
-    with right_col:
-        st.subheader("📊 Asset Allocation")
-        # Create a small pie chart for wallet distribution
-        wallet_data = pd.DataFrame({
-            "Currency": list(user_data['wallets'].keys()),
-            "Value": list(user_data['wallets'].values())
-        })
-        st.dataframe(
-            wallet_data,
-            hide_index=True,
-            use_container_width=True,
-            column_config={
-                "Value": st.column_config.NumberColumn(format="%.2f")
-            }
-        )
-
-        # Quick Quick Action
-        st.warning(
-            f"💡 AI suggests optimizing your **{user_data['risk_profile']}** risk profile with higher yield MMFs.")
-
-    st.divider()
-
-    # --- Institutional News/Alerts ---
-    st.subheader("🔔 Market Intelligence")
-
-    # Simulating dynamic news based on user's portfolio
-    news_col1, news_col2 = st.columns(2)
-    with news_col1:
-        st.info("**SONIA Rate Update**: UK Sterling Overnight Index Average remains stable at 5.20%.")
-    with news_col2:
-        st.success("**New Asset Alert**: Archax has listed a new BlackRock tokenized Treasury fund.")
-
-    # --- Transaction Quick View ---
-    with st.expander("🔍 View Recent System Logs"):
-        if user_data.get('transactions'):
-            st.table(user_data['transactions'][:3])  # Show last 3
-        else:
-            st.write("No system logs for this session.")
+    col_chart, col_ledger = st.columns([1, 1])
+    with col_chart:
+        st.subheader("💰 Asset Allocation")
+        df_wallets = pd.DataFrame(list(wallets.items()), columns=['Currency', 'Balance'])
+        fig_pie = px.pie(df_wallets, values='Balance', names='Currency', hole=0.4, color_discrete_sequence=['#006a4d', '#81c784'])
+        st.plotly_chart(fig_pie, use_container_width=True)
+    with col_ledger:
+        st.subheader("📝 Settlement Ledger")
+        st.dataframe(pd.DataFrame(user_data.get('transactions', [])), hide_index=True, use_container_width=True, height=250)

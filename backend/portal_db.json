@@ -5,10 +5,38 @@
         "risk_profile": "low",
         "base_currency": "USD",
         "wallets": {
-            "GBP": 11500.0,
+            "GBP": 10400.0,
             "USD": 10000.0
         },
         "transactions": [
+            {
+                "timestamp": "2026-03-24 21:22:24",
+                "description": "Archax Subscription: abrdn Sterling MMF",
+                "amount": -1000,
+                "currency": "GBP",
+                "status": "Settled"
+            },
+            {
+                "timestamp": "2026-03-24 21:21:58",
+                "description": "Archax Subscription: abrdn Sterling MMF",
+                "amount": -1000,
+                "currency": "GBP",
+                "status": "Settled"
+            },
+            {
+                "timestamp": "2026-03-24 21:08:11",
+                "description": "Manual Deposit (External Bank)",
+                "amount": 1000,
+                "currency": "GBP",
+                "status": "Settled"
+            },
+            {
+                "timestamp": "2026-03-21 16:01:08",
+                "description": "Institutional Purchase: iShares \u00a3 Corp Bond 0-5yr",
+                "amount": -100,
+                "currency": "GBP",
+                "status": "Settled"
+            },
             {
                 "timestamp": "2026-03-21 10:30:20",
                 "description": "Manual Deposit (External Bank)",

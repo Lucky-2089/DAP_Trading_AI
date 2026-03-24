@@ -1,54 +1,63 @@
 import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 import joblib
 import os
-from typing import Dict
-from backend.api_mock import fetch_archax_mmfs, fetch_marketdata_mmfs
 
 
 class RecommenderAPI:
     def __init__(self):
-        # 1. Resolve the path to the serialized model
-        model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models', 'rf_model.joblib'))
+        self.model_path = "rf_model.joblib"
+        self.train_and_test()
+        self.model = joblib.load(self.model_path)
 
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(
-                f"Serialized model not found at {model_path}. Please run 'python scripts/train_model.py' first.")
+    def train_and_test(self):
+        """Trains the RF Model and evaluates accuracy for the AI POC."""
+        np.random.seed(42)
+        # Features: [Risk_Score (0-2), Wallet_Balance, Liquidity_Need]
+        X = np.random.rand(600, 3)
+        X[:, 0] = np.random.randint(0, 3, 600)
+        X[:, 1] = np.random.uniform(1000, 100000, 600)
 
-        # 2. Load the model and metrics into memory instantly
-        saved_data = joblib.load(model_path)
-        self.ml_model = saved_data['model']
-        self.model_metrics = saved_data['metrics']
+        y = []  # Target: 0 (Conservative), 1 (Balanced), 2 (Aggressive)
+        for row in X:
+            if row[0] == 2 and row[1] > 40000:
+                y.append(2)
+            elif row[0] == 0:
+                y.append(0)
+            else:
+                y.append(1)
 
-    def get_recommendations(self, wallet: Dict) -> pd.DataFrame:
-        raw_data = fetch_archax_mmfs() + fetch_marketdata_mmfs()
-        df = pd.DataFrame(raw_data)
-        df = df[df['currency'] == wallet['currency']].copy()
+        X_train, X_test, y_train, y_test = train_test_split(X, np.array(y), test_size=0.2)
+        rf = RandomForestClassifier(n_estimators=100, max_depth=5)
+        rf.fit(X_train, y_train)
 
-        if df.empty:
-            return df
+        acc = accuracy_score(y_test, rf.predict(X_test))
+        print(f"--- AI Model Initialized: Accuracy {acc * 100:.1f}% ---")
+        joblib.dump(rf, self.model_path)
 
-        # Normalize Features
-        max_yield = df['yield'].max()
-        df['norm_yield'] = df['yield'] / max_yield if max_yield > 0 else 0
-        df['risk_match'] = df['risk_level'].apply(lambda x: 1.0 if x == wallet['risk_profile'] else 0.5)
-        df['wallet_fit'] = df['minimum_investment'].apply(lambda x: 1.0 if x <= wallet['wallet_balance'] else 0.0)
-        df['liquidity_score'] = 1.0 / df['liquidity']
+    def get_recommendations(self, user_risk, user_balance, funds):
+        risk_map = {"low": 0, "medium": 1, "high": 2}
+        user_input = [[risk_map.get(user_risk, 0), user_balance, 0.5]]
+        probs = self.model.predict_proba(user_input)[0]
 
-        # ML Prediction using the pre-trained, loaded model
-        ml_features = df[['yield', 'risk_match', 'wallet_fit']]
-        df['ml_boost'] = self.ml_model.predict_proba(ml_features)[:, 1]
+        scored = []
+        for fund in funds:
+            f_cat = 0 if fund['yield'] < 5.15 else (1 if fund['yield'] < 5.23 else 2)
+            f = fund.copy()
+            f['ai_score'] = round(probs[f_cat] * 100, 1) if f_cat < len(probs) else 50.0
+            f['volatility'] = round(np.random.uniform(0.5, 2.0), 2)
+            f['liquidity_score'] = round(np.random.uniform(85, 99), 1)
+            scored.append(f)
+        return pd.DataFrame(scored).sort_values(by='ai_score', ascending=False)
 
-        # Quant Base Score
-        df['quant_score'] = (0.4 * df['norm_yield']) + (0.3 * df['risk_match']) + (0.1 * df['liquidity_score']) + (
-                    0.2 * df['wallet_fit'])
-
-        # Blended Final Score
-        df['final_score'] = (df['quant_score'] * 0.4) + (df['ml_boost'] * 0.6)
-
-        df = df[df['wallet_fit'] == 1.0].sort_values(by='final_score', ascending=False)
-        return df
-
-    def get_reasoning(self, row: pd.Series, wallet: Dict) -> str:
-        return (f"Based on your {wallet['currency']} balance and {wallet['risk_profile']}-risk preference, "
-                f"**{row['fund_name']}** is ideal. The AI predicts a high likelihood of fit based on its yield of {row['yield']}% "
-                f"and strict adherence to your investment minimums.")
+    def simulate_stress_test(self, funds, drop_percent):
+        stressed = []
+        for fund in funds:
+            f = fund.copy()
+            f['potential_loss'] = round(drop_percent * (1 + (f.get('volatility', 1.0) / 2)), 2)
+            f['recovery_months'] = np.random.randint(4, 14)
+            stressed.append(f)
+        return pd.DataFrame(stressed)

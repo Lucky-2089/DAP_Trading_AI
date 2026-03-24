@@ -2,10 +2,11 @@ import streamlit as st
 import sys
 import os
 
-# --- PATH FIX ---
+# This adds the root project folder to your Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from backend.database import db
+
 from auth import login_screen
 from dashboard import show_dashboard
 from wallet import show_wallet
