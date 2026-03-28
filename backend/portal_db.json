@@ -11,14 +11,14 @@
         "transactions": [
             {
                 "timestamp": "2026-03-24 21:22:24",
-                "description": "Archax Subscription: abrdn Sterling MMF",
+                "description": "Third Party Subscription: abrdn Sterling MMF",
                 "amount": -1000,
                 "currency": "GBP",
                 "status": "Settled"
             },
             {
                 "timestamp": "2026-03-24 21:21:58",
-                "description": "Archax Subscription: abrdn Sterling MMF",
+                "description": "Third Party Subscription: abrdn Sterling MMF",
                 "amount": -1000,
                 "currency": "GBP",
                 "status": "Settled"

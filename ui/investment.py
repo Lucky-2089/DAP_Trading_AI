@@ -141,7 +141,7 @@ def show_investment(user_data):
     risk    = user_data.get('risk_profile', 'low')
 
     # ── AI INFERENCE ──
-    with st.spinner("🤖 AI Model scanning Archax Digital Assets..."):
+    with st.spinner("🤖 AI Model scanning ThirdParty Digital Assets..."):
         raw_funds = client.get_public_funds()
         df_recs   = engine.get_recommendations(risk, balance, raw_funds)
 
@@ -235,7 +235,7 @@ def show_investment(user_data):
 
         if st.button("Subscribe to Fund →", use_container_width=True):
             st.balloons()
-            st.toast("Subscription request sent to Archax Ledger", icon="🏦")
+            st.toast("Subscription request sent to Third Party Ledger", icon="🏦")
 
     with col_gauge:
         st.markdown('<div class="gauge-wrap">', unsafe_allow_html=True)

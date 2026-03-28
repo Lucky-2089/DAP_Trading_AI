@@ -8,7 +8,7 @@ class ArchaxPublicClient:
         self.base_url = "https://ace.archax.com/api/3.0/rest-gateway"
 
     def get_public_funds(self):
-        """Fetches public asset metadata from Archax with a robust fallback."""
+        """Fetches public asset metadata from Third Party with a robust fallback."""
         try:
             response = requests.get(f"{self.base_url}/assets", timeout=5)
             if response.status_code == 200:

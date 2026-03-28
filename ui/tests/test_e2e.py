@@ -14,7 +14,7 @@ def test_streamlit_ui_flow(page: Page):
         page.goto("http://localhost:8501")
 
         # 1. Verify App loads correctly (Added a timeout to wait for the UI to fully render)
-        expect(page.locator("text=Archax / Canton MMF Trading DApp")).to_be_visible(timeout=15000)
+        expect(page.locator("text=Third Party / Blockchain MMF Trading DApp")).to_be_visible(timeout=15000)
 
         # 2. Verify AI Model Health Metrics in Sidebar
         expect(page.locator("text=🧠 AI Model Health")).to_be_visible()

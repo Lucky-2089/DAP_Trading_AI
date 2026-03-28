@@ -247,6 +247,6 @@ def login_screen():
         <div class="auth-footer">
             <strong>Institutional Access Only</strong><br>
             Unauthorised access is prohibited and monitored.<br>
-            © 2026 Bank Banking Group · Archax DApp Project
+            © 2026 Bank Banking Group · Third Party DApp Project
         </div>
         """, unsafe_allow_html=True)

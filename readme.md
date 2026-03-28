@@ -4,21 +4,21 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-006a4d.svg)](https://www.python.org/)
 
 ## 📝 Overview
-This **Digital Asset Portal** is a high-fidelity Proof of Concept (POC) designed for institutional users within the ** Technology Center** ecosystem. It provides a secure gateway for managing digital assets, funding wallets, and performing asset swaps via the **Archax Exchange** and **Canton Blockchain**.
+This **Digital Asset Portal** is a high-fidelity Proof of Concept (POC) designed for institutional users within the ** Technology Center** ecosystem. It provides a secure gateway for managing digital assets, funding wallets, and performing asset swaps via the **Third Party Exchange** and ** Blockchain**.
 
 The UI is strictly engineered to follow ** Bank Institutional Branding**, utilizing a custom **Sandstone and Racing Green** color palette with smooth CSS3 animations for a premium user experience.
 
 ---
 
 ## 🛠 Tech Stack
-| Component | Technology |
-| :--- | :--- |
-| **Frontend** | Streamlit (Python-based Web Framework) |
-| **Styling** | Custom CSS3, Animate.css (v4.1.1) |
-| **Animations** | Lottie (LottieFiles) & `streamlit-lottie` |
-| **Backend** | Python Modular Architecture |
-| **AI Engine** | Gemini AI (Ready for Guarantee Text Vetting) |
-| **Blockchain** | Canton Network / Archax Exchange Integration Logic |
+| Component | Technology                                              |
+| :--- |:--------------------------------------------------------|
+| **Frontend** | Streamlit (Python-based Web Framework)                  |
+| **Styling** | Custom CSS3, Animate.css (v4.1.1)                       |
+| **Animations** | Lottie (LottieFiles) & `streamlit-lottie`               |
+| **Backend** | Python Modular Architecture                             |
+| **AI Engine** | Gemini AI (Ready for Guarantee Text Vetting)            |
+| **Blockchain** |  Network / Third Pary  Exchange Integration Logic |
 
 ---
 
